@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Danh sách phòng | Hotel Management{% endblock %}
+
+{% block content %}
+  <section class="page-heading" aria-labelledby="home-title">
+    <div>
+      <p class="page-kicker">Quản lý phòng</p>
+      <h1 id="home-title">Quản lý phòng</h1>
+      <p class="page-description">Theo dõi trạng thái và thời gian lưu trú của các phòng theo từng tầng.</p>
+    </div>
+    <p class="login-success">
+      <svg class="icon" aria-hidden="true"><use href="#icon-check"></use></svg>
+      Đăng nhập thành công
+    </p>
+  </section>
+
+  {% with success_messages = get_flashed_messages(category_filter=["success"]) %}
+    {% for message in success_messages %}
+      <p class="room-update-success" role="status">{{ message }}</p>
+    {% endfor %}
+  {% endwith %}
+
+  <section id="room-list" class="dashboard-panel" aria-labelledby="room-list-title">
+    <header class="panel-header">
+      <div>
+        <h2 id="room-list-title">Danh sách phòng</h2>
+        <p>12 phòng · Chọn màu để nhận biết trạng thái phòng</p>
+      </div>
+      <div class="room-legend" aria-label="Chú thích trạng thái phòng">
+        <span class="legend-item"><span class="legend-dot legend-dot--empty"></span>Phòng trống</span>
+        <span class="legend-item"><span class="legend-dot legend-dot--occupied"></span>Đang thuê</span>
+      </div>
+    </header>
+
+    <div class="floor-list">
+      {% for floor in floors %}
+        <section class="floor-section" aria-labelledby="floor-{{ loop.index }}-title">
+          <h3 id="floor-{{ loop.index }}-title" class="floor-title">{{ floor.name }}</h3>
+          <div class="room-grid">
+            {% for room in floor.rooms %}
+              <article
+                class="room-card room-card--{{ room.state }}"
+                aria-label="Phòng {{ room.number }}, {{ room.status }}"
+              >
+                <div class="room-card__top">
+                  <strong class="room-number">{{ room.number }}</strong>
+                  <span class="room-status room-status--{{ room.state }}">{{ room.status }}</span>
+                </div>
+                <p class="room-type">{{ room.type }}</p>
+                {% if room.image_filename %}
+                  <img
+                    class="room-card__image"
+                    src="{{ url_for('static', filename='uploads/rooms/' ~ room.image_filename) }}"
+                    alt="Ảnh phòng {{ room.number }}"
+                  >
+                {% endif %}
+                <dl class="room-times">
+                  <div>
+                    <dt>Giờ vào</dt>
+                    <dd>{{ room.check_in or "—" }}</dd>
+                  </div>
+                  <div>
+                    <dt>Giờ ra</dt>
+                    <dd>{{ room.check_out or "—" }}</dd>
+                  </div>
+                </dl>
+                <div class="room-actions">
+                  <a
+                    class="action-button action-button--edit"
+                    href="{{ url_for('edit_room', room_number=room.number) }}"
+                    aria-label="Cập nhật thông tin phòng {{ room.number }}"
+                  >Cập nhật thông tin</a>
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        </section>
+      {% endfor %}
+    </div>
+  </section>
+
+{% endblock %}
